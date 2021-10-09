@@ -10,15 +10,27 @@ import { doc, updateDoc } from "firebase/firestore";
 
 const UserDetails = () => {
   const [state, dispatch] = StateValue();
+  console.log(state);
   const [show, setShow] = useState(false);
-  console.log(auth.currentUser);
+  const [show2, setShow2] = useState(false);
+  const [userDetails, setUserDetails] = useState({
+    displayName: state.userData?.displayName,
+    email: state.userData?.email,
+    age: state.userData?.age,
+    speciality: state.userData?.speciality,
+    protfolioURL: state.userData?.protfolioURL,
+  });
+  console.log(userDetails);
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const handleClose2 = () => setShow2(false);
+  const handleShow2 = () => setShow2(true);
 
-  const handleSubmit = async (e) => {
+  const handleSubmitDp = async (e) => {
     e.preventDefault();
     try {
-      console.log("handleSubmit has been started");
+      console.log("handleSubmitDp has been started");
       const storageV = ref(storage, auth.currentUser.uid);
       // const storageH = ref(storageV, auth.currentUser.uid);
       const storageRef = ref(storageV, "profile");
@@ -37,24 +49,32 @@ const UserDetails = () => {
       await updateDoc(userRef, {
         profilePhoto: url,
       });
-      // This can be downloaded directly:
-      // const xhr = new XMLHttpRequest();
-      // xhr.responseType = "blob";
-      // xhr.onload = (event) => {
-      //   const blob = xhr.response;
-      // };
-      // xhr.open("GET", url);
-      // xhr.send();
 
-      // Or inserted into an <img> element
-      // const img = document.getElementById("myimg");
-      // img.setAttribute("src", url);
       handleClose();
     } catch (err) {
       alert(err.message);
     }
   };
-  console.log(state.userData?.profilePhoto);
+  const handleSubmitDetails = () => {};
+
+  let inputName, value;
+  const handleChangeDetails = (e) => {
+    inputName = e.target.name;
+    value = e.target.value;
+    setUserDetails((prev) => {
+      return {
+        ...prev,
+        [inputName]: value,
+      };
+    });
+  };
+  // setUserDetails({
+  //   displayName: state.userData?.displayName,
+  //   email: state.userData?.email,
+  //   age: state.userData?.age,
+  //   speciality: state.userData?.speciality,
+  //   protfolioURL: state.userData?.protfolioURL,
+  // });
   return (
     <>
       <div className="container-fluid">
@@ -64,8 +84,8 @@ const UserDetails = () => {
               <div className="position-relative text-center">
                 <img
                   src={
-                    state.userData?.protfolioURL
-                      ? `${state.userData?.protfolioURL}`
+                    state.userData?.profilePhoto
+                      ? `${state.userData?.profilePhoto}`
                       : "images/defaultProfile.png"
                   }
                   // src="images/defaultProfile.png"
@@ -87,7 +107,7 @@ const UserDetails = () => {
                       </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                      <form onSubmit={handleSubmit}>
+                      <form onSubmit={handleSubmitDp}>
                         <div className="input-group mb-3">
                           <input
                             type="file"
@@ -124,9 +144,109 @@ const UserDetails = () => {
                   </ListGroup.Item>
                   <ListGroup.Item>
                     <b>Protfolio: </b>
-                    {state.userData?.protfolioURL}
+                    <a href={state.userData?.protfolioURL}>
+                      {state.userData?.protfolioURL}
+                    </a>
                   </ListGroup.Item>
                 </ListGroup>
+                {/* <!-- Button trigger modal --> */}
+                <Button variant="dark" onClick={handleShow2} className="my-3">
+                  Your Account
+                </Button>
+
+                {/* <!-- Modal --> */}
+                <Modal show={show2} onHide={handleClose2} centered>
+                  <div className="px-sm-4 py-2">
+                    <Modal.Header closeButton>
+                      <Modal.Title>
+                        <h2 className="modal-title" id="loginLabel">
+                          Account Details
+                        </h2>
+                      </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <form onSubmit={handleChangeDetails}>
+                        <div className="mb-4">
+                          <label htmlFor="name" className="form-label">
+                            Name
+                          </label>
+                          <input
+                            placeholder="Enter Name"
+                            type="text"
+                            className="form-control"
+                            id="name"
+                            aria-describedby="nameHelp"
+                            name="displayName"
+                            value={userDetails.displayName}
+                            onChange={handleChangeDetails}
+                          />
+                        </div>
+                        <div className="mb-4">
+                          <label htmlFor="changeEmail" className="form-label">
+                            Email address
+                          </label>
+                          <input
+                            placeholder="Enter your Email Address"
+                            type="email"
+                            className="form-control"
+                            id="changeEmail"
+                            aria-describedby="emailHelp"
+                            name="email"
+                            value={userDetails.email}
+                            onChange={handleChangeDetails}
+                          />
+                        </div>
+
+                        <div className="mb-4">
+                          <label htmlFor="age" className="form-label">
+                            Age
+                          </label>
+                          <input
+                            placeholder="Enter your Age"
+                            type="number"
+                            className="form-control"
+                            id="age"
+                            name="age"
+                            value={userDetails.age}
+                            onChange={handleChangeDetails}
+                          />
+                        </div>
+                        <div className="mb-4">
+                          <label htmlFor="speciality" className="form-label">
+                            Speciality
+                          </label>
+                          <input
+                            placeholder="Enter your Speciality (What type of work do you want?)"
+                            type="text"
+                            className="form-control"
+                            id="speciality"
+                            name="speciality"
+                            value={userDetails.speciality}
+                            onChange={handleChangeDetails}
+                          />
+                        </div>
+                        <div className="mb-4">
+                          <label htmlFor="protfolioURL" className="form-label">
+                            Protfoilio Url
+                          </label>
+                          <input
+                            placeholder="Give your Protfolio Link"
+                            type="url"
+                            className="form-control"
+                            id="protfolioURL"
+                            name="protfolioURL"
+                            value={userDetails.protfolioURL}
+                            onChange={handleChangeDetails}
+                          />
+                        </div>
+
+                        <Button type="submit" variant="dark">
+                          Submit
+                        </Button>
+                      </form>
+                    </Modal.Body>
+                  </div>
+                </Modal>
               </div>
             </div>
           </div>

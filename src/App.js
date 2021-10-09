@@ -17,41 +17,22 @@ function App() {
     src: "",
   });
 
-  // const getProfile = async () => {
-  //   // const storageRef = (storage, `${auth.currentUser?.uid}/profile`);
-  //   try {
-  //     console.log("getProfiile has started");
-  //     const url = await getDownloadURL(
-  //       ref(storage, `${auth.currentUser?.uid}/profile`)
-  //     );
-  //     console.log(url);
-  //     dispatch({
-  //       type: "getProfilePic",
-  //       payload: url,
-  //     });
-  //     console.log("getProfiile has completed");
-  //   } catch (err) {
-  //     alert(err.message);
-  //   }
-  // };
-
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/firebase.User
         console.log("user is signed in");
-        dispatch({
-          type: "setUser",
-          payload: user,
-        });
         onSnapshot(doc(db, "users", auth.currentUser?.uid), (doc) => {
           dispatch({
             type: "setUserData",
             payload: doc.data(),
           });
         });
-        // getProfile();
+        dispatch({
+          type: "setUser",
+          payload: user,
+        });
       } else {
         // User is signed out
         dispatch({

@@ -1,4 +1,4 @@
-export const initialState = { user: null, userData: null, profilePic: null };
+export const initialState = { user: null, userData: null };
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -11,12 +11,6 @@ const reducer = (state, action) => {
       return {
         ...state,
         userData: action.payload,
-      };
-
-    case "getProfilePic":
-      return {
-        ...state,
-        profilePic: action.payload,
       };
 
     default:
