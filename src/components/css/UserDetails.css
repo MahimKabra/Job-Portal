@@ -1,9 +1,15 @@
 .profile-pic {
-  width: 60% !important;
-  height: auto;
+  width: 326px !important;
+  height: 326px;
   border-radius: 50% !important;
   margin: auto;
-  object-fit: contain;
+  object-fit: cover;
   margin-top: 23px;
   box-shadow: 0px 0px 9px 4px black;
+}
+.edit-icon {
+  top: 100%;
+  left: 50%;
+  padding: 10px !important;
+  cursor: pointer;
 }

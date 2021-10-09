@@ -1,46 +1,64 @@
-import { createUserWithEmailAndPassword, updateProfile } from "@firebase/auth";
+import { createUserWithEmailAndPassword } from "@firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../firebase";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import { db } from "../firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 const Register = () => {
   const [input, setInput] = useState({
-    displayName: "",
     email: "",
     password: "",
   });
-  const [show, setShow] = useState(false);
+  const [userData, setUserData] = useState({
+    displayName: "",
+    email: "",
+    age: "",
+    speciality: "",
+    protfolioURL: "",
+    profilePhoto: "",
+  });
 
+  const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  // storing the user details in userData state
   let inputName, value;
   const handleChange = (e) => {
     inputName = e.target.name;
     value = e.target.value;
-    setInput((prev) => {
-      return {
-        ...prev,
-        [inputName]: value,
-      };
-    });
+    if (inputName !== "password") {
+      setUserData((prev) => {
+        return {
+          ...prev,
+          [inputName]: value,
+        };
+      });
+    }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        input.email,
-        input.password
-      );
-      updateProfile(auth.currentUser, { displayName: input.displayName });
+      await createUserWithEmailAndPassword(auth, input.email, input.password);
+      // storing the useData(user details) in the firestore
+      await setDoc(doc(db, "users", auth.currentUser.uid), userData);
+
       setInput(() => {
+        return {
+          email: "",
+          password: "",
+        };
+      });
+      setUserData(() => {
         return {
           displayName: "",
           email: "",
-          password: "",
+          age: "",
+          speciality: "",
+          protfolioURL: "",
         };
       });
       handleClose();
@@ -79,7 +97,7 @@ const Register = () => {
                   id="name"
                   aria-describedby="nameHelp"
                   name="displayName"
-                  value={input.displayName}
+                  value={userData.displayName}
                   onChange={handleChange}
                 />
               </div>
@@ -95,7 +113,12 @@ const Register = () => {
                   aria-describedby="emailHelp"
                   name="email"
                   value={input.email}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    setInput((prev) => {
+                      return { ...prev, [e.target.name]: e.target.value };
+                    });
+                    handleChange(e);
+                  }}
                 />
               </div>
               <div className="mb-4">
@@ -109,9 +132,56 @@ const Register = () => {
                   id="registerPassword"
                   name="password"
                   value={input.password}
+                  onChange={(e) => {
+                    setInput((prev) => {
+                      return { ...prev, [e.target.name]: e.target.value };
+                    });
+                  }}
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="age" className="form-label">
+                  Age
+                </label>
+                <input
+                  placeholder="Enter your Age"
+                  type="number"
+                  className="form-control"
+                  id="age"
+                  name="age"
+                  value={userData.age}
                   onChange={handleChange}
                 />
               </div>
+              <div className="mb-4">
+                <label htmlFor="speciality" className="form-label">
+                  Speciality
+                </label>
+                <input
+                  placeholder="Enter your Speciality (What type of work do you want?)"
+                  type="text"
+                  className="form-control"
+                  id="speciality"
+                  name="speciality"
+                  value={userData.speciality}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="protfolioURL" className="form-label">
+                  Protfoilio Url
+                </label>
+                <input
+                  placeholder="Give your Protfolio Link"
+                  type="url"
+                  className="form-control"
+                  id="protfolioURL"
+                  name="protfolioURL"
+                  value={userData.protfolioURL}
+                  onChange={handleChange}
+                />
+              </div>
+
               <button type="submit" className="btn btn-dark">
                 Register
               </button>

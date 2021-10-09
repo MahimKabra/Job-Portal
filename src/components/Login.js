@@ -71,7 +71,6 @@ const Login = () => {
                   Email address
                 </label>
                 <input
-                  active
                   placeholder="Enter your Email Address"
                   type="email"
                   className="form-control"
