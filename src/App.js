@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { onAuthStateChanged } from "@firebase/auth";
 import Navbar from "./components/Navbar";
 import { StateValue } from "./Context";
@@ -13,20 +13,27 @@ import { storage } from "./firebase";
 
 function App() {
   const [, dispatch] = StateValue();
+  const [pic, setPic] = useState({
+    src: "",
+  });
 
-  const getProfile = async () => {
-    const storageRef = (storage, `${auth.currentUser?.uid}/profile`);
-    try {
-      const url = await getDownloadURL(ref(storageRef));
-      console.log(url);
-      dispatch({
-        type: "getProfilePic",
-        payload: url,
-      });
-    } catch (err) {
-      alert(err.message);
-    }
-  };
+  // const getProfile = async () => {
+  //   // const storageRef = (storage, `${auth.currentUser?.uid}/profile`);
+  //   try {
+  //     console.log("getProfiile has started");
+  //     const url = await getDownloadURL(
+  //       ref(storage, `${auth.currentUser?.uid}/profile`)
+  //     );
+  //     console.log(url);
+  //     dispatch({
+  //       type: "getProfilePic",
+  //       payload: url,
+  //     });
+  //     console.log("getProfiile has completed");
+  //   } catch (err) {
+  //     alert(err.message);
+  //   }
+  // };
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -44,7 +51,7 @@ function App() {
             payload: doc.data(),
           });
         });
-        // getProfilPic();
+        // getProfile();
       } else {
         // User is signed out
         dispatch({

@@ -5,7 +5,8 @@ import { StateValue } from "../Context";
 import EditIcon from "@material-ui/icons/Edit";
 import Button from "react-bootstrap/Button";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage, auth } from "../firebase";
+import { storage, auth, db } from "../firebase";
+import { doc, updateDoc } from "firebase/firestore";
 
 const UserDetails = () => {
   const [state, dispatch] = StateValue();
@@ -22,14 +23,38 @@ const UserDetails = () => {
       // const storageH = ref(storageV, auth.currentUser.uid);
       const storageRef = ref(storageV, "profile");
       // 'file' comes from the Blob or File API
-      console.log("defiewhvcouegvo");
       await uploadBytes(storageRef, e.target[0].files[0]);
       console.log("file submitted successfullly");
+
+      const url = await getDownloadURL(
+        ref(storage, `${auth.currentUser.uid}/profile`)
+      );
+      // `url` is the download URL for 'images/stars.jpg'
+
+      const userRef = doc(db, "users", auth.currentUser.uid);
+
+      // Set the "capital" field of the city 'DC'
+      await updateDoc(userRef, {
+        profilePhoto: url,
+      });
+      // This can be downloaded directly:
+      // const xhr = new XMLHttpRequest();
+      // xhr.responseType = "blob";
+      // xhr.onload = (event) => {
+      //   const blob = xhr.response;
+      // };
+      // xhr.open("GET", url);
+      // xhr.send();
+
+      // Or inserted into an <img> element
+      // const img = document.getElementById("myimg");
+      // img.setAttribute("src", url);
       handleClose();
     } catch (err) {
       alert(err.message);
     }
   };
+  console.log(state.userData?.profilePhoto);
   return (
     <>
       <div className="container-fluid">
@@ -39,8 +64,8 @@ const UserDetails = () => {
               <div className="position-relative text-center">
                 <img
                   src={
-                    auth.currentUser.photoURL
-                      ? auth.currentUser.photoURL
+                    state.userData?.protfolioURL
+                      ? `${state.userData?.protfolioURL}`
                       : "images/defaultProfile.png"
                   }
                   // src="images/defaultProfile.png"
