@@ -7,10 +7,10 @@ import Button from "react-bootstrap/Button";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage, auth, db } from "../firebase";
 import { doc, updateDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
 
 const UserDetails = () => {
   const [state, dispatch] = StateValue();
-  console.log(state);
   const [show, setShow] = useState(false);
   const [show2, setShow2] = useState(false);
   const [userDetails, setUserDetails] = useState({
@@ -20,7 +20,6 @@ const UserDetails = () => {
     speciality: state.userData?.speciality,
     protfolioURL: state.userData?.protfolioURL,
   });
-  console.log(userDetails);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -37,25 +36,60 @@ const UserDetails = () => {
       // 'file' comes from the Blob or File API
       await uploadBytes(storageRef, e.target[0].files[0]);
       console.log("file submitted successfullly");
-
       const url = await getDownloadURL(
         ref(storage, `${auth.currentUser.uid}/profile`)
       );
-      // `url` is the download URL for 'images/stars.jpg'
-
       const userRef = doc(db, "users", auth.currentUser.uid);
-
-      // Set the "capital" field of the city 'DC'
       await updateDoc(userRef, {
         profilePhoto: url,
       });
-
       handleClose();
-    } catch (err) {
-      alert(err.message);
+      toast("Profile Photo Updated", {
+        position: "bottom-left",
+        type: "success",
+        autoClose: 2000,
+        theme: "dark",
+      });
+    } catch (error) {
+      toast(error.message, {
+        position: "bottom-left",
+        type: "error",
+        autoClose: 3000,
+        theme: "dark",
+      });
     }
   };
-  const handleSubmitDetails = () => {};
+
+  const handleSubmitDetails = async (e) => {
+    e.preventDefault();
+
+    try {
+      const usersData = doc(db, "users", auth.currentUser.uid);
+
+      // Set the "capital" field of the city 'DC'
+      await updateDoc(usersData, {
+        displayName: userDetails?.displayName,
+        email: userDetails?.email,
+        age: userDetails?.age,
+        speciality: userDetails?.speciality,
+        protfolioURL: userDetails?.protfolioURL,
+      });
+      handleClose2(true);
+      toast("Account Updated", {
+        position: "bottom-left",
+        type: "success",
+        autoClose: 2000,
+        theme: "dark",
+      });
+    } catch (error) {
+      toast(error.message, {
+        position: "bottom-left",
+        type: "error",
+        autoClose: 3000,
+        theme: "dark",
+      });
+    }
+  };
 
   let inputName, value;
   const handleChangeDetails = (e) => {
@@ -68,13 +102,6 @@ const UserDetails = () => {
       };
     });
   };
-  // setUserDetails({
-  //   displayName: state.userData?.displayName,
-  //   email: state.userData?.email,
-  //   age: state.userData?.age,
-  //   speciality: state.userData?.speciality,
-  //   protfolioURL: state.userData?.protfolioURL,
-  // });
   return (
     <>
       <div className="container-fluid">
@@ -165,7 +192,7 @@ const UserDetails = () => {
                       </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                      <form onSubmit={handleChangeDetails}>
+                      <form onSubmit={handleSubmitDetails}>
                         <div className="mb-4">
                           <label htmlFor="name" className="form-label">
                             Name

@@ -6,16 +6,13 @@ import Home from "./components/Home";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { auth, db } from "./firebase";
 import { doc, onSnapshot } from "firebase/firestore";
-import { ref, getDownloadURL } from "firebase/storage";
-import { storage } from "./firebase";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // 'file' comes from the Blob or File API
 
 function App() {
   const [, dispatch] = StateValue();
-  const [pic, setPic] = useState({
-    src: "",
-  });
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -49,6 +46,8 @@ function App() {
     <>
       <Navbar />
       <Home />
+
+      <ToastContainer />
     </>
   );
 }

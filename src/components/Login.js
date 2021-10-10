@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { auth } from "../firebase";
 import Button from "react-bootstrap/Button";
 import { Modal } from "react-bootstrap";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [input, setInput] = useState({
@@ -33,18 +34,27 @@ const Login = () => {
         input.email,
         input.password
       );
-      if (userCredential) {
-        console.log("login successful");
-        setInput(() => {
-          return {
-            email: "",
-            password: "",
-          };
-        });
-        handleClose();
-      }
-    } catch (err) {
-      alert(err.message);
+      console.log("login successful");
+      setInput(() => {
+        return {
+          email: "",
+          password: "",
+        };
+      });
+      handleClose();
+      toast("Login Successful", {
+        position: "bottom-left",
+        type: "success",
+        autoClose: 2000,
+        theme: "dark",
+      });
+    } catch (error) {
+      toast(error.message, {
+        position: "bottom-left",
+        type: "error",
+        autoClose: 3000,
+        theme: "dark",
+      });
     }
   };
   return (

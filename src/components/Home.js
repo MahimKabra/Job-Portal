@@ -4,10 +4,9 @@ import UserDetails from "./UserDetails";
 
 const Home = () => {
   const [state] = StateValue();
-
   return (
     <>
-      {state.user ? (
+      {state.user && state.userData ? (
         <>
           <UserDetails />
         </>

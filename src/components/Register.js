@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const [input, setInput] = useState({
@@ -19,8 +20,8 @@ const Register = () => {
     protfolioURL: "",
     profilePhoto: "",
   });
-
   const [show, setShow] = useState(false);
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -62,8 +63,19 @@ const Register = () => {
         };
       });
       handleClose();
-    } catch (err) {
-      alert(err.message);
+      toast("Account Registered", {
+        position: "bottom-left",
+        type: "success",
+        autoClose: 2000,
+        theme: "dark",
+      });
+    } catch (error) {
+      toast(error.message, {
+        position: "bottom-left",
+        type: "error",
+        autoClose: 3000,
+        theme: "dark",
+      });
     }
   };
 

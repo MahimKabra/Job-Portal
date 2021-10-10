@@ -1,16 +1,30 @@
 import { signOut } from "@firebase/auth";
 import React from "react";
+import { toast } from "react-toastify";
+import { StateValue } from "../Context";
 import { auth } from "../firebase";
 import "./css/Navbar.css";
 import Login from "./Login";
 import Register from "./Register";
+
 const Navbar = () => {
+  const [state, dispatch] = StateValue();
   const handleLogout = () => {
     try {
-      console.log("sign out has started");
       signOut(auth);
-    } catch (err) {
-      alert(err.message);
+      toast("Logout Successful", {
+        position: "bottom-left",
+        type: "success",
+        autoClose: 2000,
+        theme: "dark",
+      });
+    } catch (error) {
+      toast(error.message, {
+        position: "bottom-left",
+        type: "error",
+        autoClose: 3000,
+        theme: "dark",
+      });
     }
   };
   return (
@@ -35,17 +49,24 @@ const Navbar = () => {
           id="navbarNav"
         >
           <ul className="navbar-nav">
-            <li className="nav-item mx-3">
-              <Login />
-            </li>
-            <li className="nav-item mx-3">
-              <Register />
-            </li>
-            <li className="nav-item mx-3">
-              <button className="btn btn-light" onClick={handleLogout}>
-                Logout
-              </button>
-            </li>
+            {!state.user ? (
+              <>
+                <li className="nav-item mx-3">
+                  <Login />
+                </li>
+                <li className="nav-item mx-3">
+                  <Register />
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="nav-item mx-3">
+                  <button className="btn btn-light" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>

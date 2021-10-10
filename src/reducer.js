@@ -3,10 +3,17 @@ export const initialState = { user: null, userData: null };
 const reducer = (state, action) => {
   switch (action.type) {
     case "setUser":
-      return {
-        ...state,
-        user: action.payload,
-      };
+      if (action.payload) {
+        return {
+          ...state,
+          user: action.payload,
+        };
+      } else {
+        return {
+          user: null,
+          userData: null,
+        };
+      }
     case "setUserData":
       return {
         ...state,
