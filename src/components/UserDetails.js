@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
 import "./css/UserDetails.css";
-import { ListGroup, Modal } from "react-bootstrap";
+import { Container, ListGroup, Modal } from "react-bootstrap";
 import { StateValue } from "../Context";
 import EditIcon from "@material-ui/icons/Edit";
 import Button from "react-bootstrap/Button";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage, auth, db } from "../firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { toast } from "react-toastify";
 
 const UserDetails = () => {
   const [state, dispatch] = StateValue();
   const [show, setShow] = useState(false);
   const [show2, setShow2] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
   const [userDetails, setUserDetails] = useState({
     displayName: state.userData?.displayName,
     email: state.userData?.email,
@@ -90,7 +91,56 @@ const UserDetails = () => {
       });
     }
   };
-
+  const getAllUsers = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "users"));
+      setAllUsers([]);
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        // console.log(doc.id, " => ", doc.data());
+        setAllUsers((prev) => {
+          return [...prev, doc.data()];
+        });
+      });
+      // console.log(allUsers);
+      console.log(allUsers);
+    } catch (error) {
+      toast(error.message, {
+        position: "bottom-left",
+        type: "error",
+        autoClose: 3000,
+        theme: "dark",
+      });
+    }
+  };
+  useEffect(() => {
+    // state.user.email === "kabra@kabra.com" && getAllUsers();
+    // state.user.email === "kabra@kabra.com" && getAllUsers();
+    if (state.user?.email === "kabra@kabra.com") {
+      console.log("user is here");
+      getAllUsers();
+      document.getElementById("userDetails").style.display = "none";
+      // try {
+      //   const querySnapshot = await getDocs(collection(db, "users"));
+      //   querySnapshot.forEach((doc) => {
+      //     // doc.data() is never undefined for query doc snapshots
+      //     // console.log(doc.id, " => ", doc.data());
+      //     setAllUsers((prev) => {
+      //       return [...prev, doc.data()];
+      //     });
+      //   });
+      //   // console.log(allUsers);
+      //   console.log(allUsers);
+      // } catch (error) {
+      //   toast(error.message, {
+      //     position: "bottom-left",
+      //     type: "error",
+      //     autoClose: 3000,
+      //     theme: "dark",
+      //   });
+      // }
+    }
+  }, []);
   let inputName, value;
   const handleChangeDetails = (e) => {
     inputName = e.target.name;
@@ -104,7 +154,7 @@ const UserDetails = () => {
   };
   return (
     <>
-      <div className="container-fluid">
+      <div className="container-fluid" id="userDetails">
         <div className="row my-sm-5">
           <div className="col-sm-5 mx-auto">
             <div className="card" style={{ boxShadow: "0px 0px 7px 0px grey" }}>
@@ -279,6 +329,47 @@ const UserDetails = () => {
           </div>
         </div>
       </div>
+      {auth.currentUser.email === "kabra@kabra.com" && (
+        /* console.log("hello kabra")( */
+        <Container fluid id="userTable" className="my-sm-5">
+          <div className="row">
+            <div className="col-md-10 mx-auto">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th scope="col">S.No.</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email Id</th>
+                    <th scope="col">Age</th>
+                    <th scope="col">Speciality</th>
+                    <th scope="col">Protfolio</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allUsers?.map((val, index) => {
+                    return (
+                      <>
+                        <tr key={index}>
+                          <th scope="row">{index + 1}</th>
+                          <td>{val.displayName ? val.displayName : "-"}</td>
+                          <td>{val.email ? val.email : "-"}</td>
+                          <td>{val.age ? val.age : "-"}</td>
+                          <td>{val.speciality ? val.speciality : "-"}</td>
+                          <td>
+                            <a href={val.protfolioURL}>
+                              {val.protfolioURL ? "View" : "-"}
+                            </a>
+                          </td>
+                        </tr>
+                      </>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Container>
+      )}
     </>
   );
 };
